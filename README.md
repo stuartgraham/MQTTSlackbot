@@ -1,5 +1,5 @@
 # MQTT Slackbot
-Takes MQTT messages with jpg path and uploads to slack with message
+Takes MQTT messages with url's and posts to Slack e.g. OneDrive/Google Drive/Dropbox links
 
 ### Environment variables
 Pass the following environment vairables to execution environment
@@ -7,8 +7,7 @@ Pass the following environment vairables to execution environment
 | :----: | --- | --- |
 | `MQTT_BROKER` | MQTT Broker address | `mqtt.test.local` |
 | `MQTT_PORT` | MQTT Broker port | `1883` |
-| `MQTT_SUB_TOPIC` | MQTT Topic to subscribe to | `test/messages` |
-| `INPUT_PATH` | Sub directory with input files | `input` |
+| `MQTT_SUB_TOPIC` | MQTT Topic to subscribe to | `test/messages` ||
 | `SLACK_TOKEN` | Slack API Token | `SoMeSeCrEt988766553` |
 
 ### Requirements
@@ -27,10 +26,8 @@ mqttslackbot:
     image: stuartgraham/mqttslackbot
     container_name: mqttslackbot
     environment:
-        - INPUT_PATH=input
         - MQTT_BROKER=mqtt.test.local
         - MQTT_PORT=1883
-        - MQTT_PUB_TOPIC=
         - MQTT_SUB_TOPIC=test/messages
         - SLACK_TOKEN=SoMeSeCrEt988766553
     volumes:

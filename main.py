@@ -14,27 +14,21 @@ import slack
 # GLOBALS
 MQTT_BROKER = os.environ.get('MQTT_BROKER','')
 MQTT_PORT = int(os.environ.get('MQTT_PATH', 1883))
-MQTT_PUB_TOPIC = os.environ.get('MQTT_PUB_TOPIC','')
 MQTT_SUB_TOPIC = os.environ.get('MQTT_SUB_TOPIC','')
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN','')
-INPUT_PATH = os.environ.get('INPUT_PATH','input')
 
-BASE_DIR = os.getcwd()
-INPUT_PATH = os.path.join(BASE_DIR, INPUT_PATH)
 
-def post_to_slack(image, confidence, category):
+def post_to_slack(url, confidence, category):
     if confidence > 0.8:
-        image = os.path.join(INPUT_PATH, image)
         client = slack.WebClient(token=SLACK_TOKEN)
-        comment = "Confidence {}, Category {}".format(confidence, category)
-        response = client.files_upload(
-            file=image,
-            initial_comment=comment,
-            channels='#cctv'
-        )
-        assert response['ok']
-        slack_file = response['file']
-        logging.info(slack_file)
+        comment = "Confidence : {}, Category : {} /n {}".format(str(confidence*100), category, url)
+        response =  client.api_call(
+                    "chat.postMessage",
+                    channel="#cctv",
+                    text=comment
+                    )
+        logging.info(response)
+
 
 # SUB MQTT
 def on_connect(client, userdata, flags, rc):
@@ -50,9 +44,9 @@ def on_message(client, userdata, msg):
     logging.debug("json_category : {}".format(str(category))) 
     confidence = message['confidence']
     logging.debug("json_confidence : {}".format(str(confidence)))
-    image = message['image']
-    logging.debug("json_image : {}".format(str(image)))
-    post_to_slack(image, confidence, category)
+    url = message['url']
+    logging.debug("json_url : {}".format(str(url)))
+    post_to_slack(url, confidence, category)
 
 def main():
     logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(message)s')
