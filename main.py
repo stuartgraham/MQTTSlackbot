@@ -23,17 +23,18 @@ BASE_DIR = os.getcwd()
 INPUT_PATH = os.path.join(BASE_DIR, INPUT_PATH)
 
 def post_to_slack(image, confidence, category):
-    image = os.path.join(INPUT_PATH, image)
-    client = slack.WebClient(token=SLACK_TOKEN)
-    comment = "Confidence {}, Category {}".format(confidence, category)
-    response = client.files_upload(
-        file=image,
-        initial_comment=comment,
-        channels='#cctv'
-    )
-    assert response['ok']
-    slack_file = response['file']
-    logging.info(slack_file)
+    if confidence > 0.8:
+        image = os.path.join(INPUT_PATH, image)
+        client = slack.WebClient(token=SLACK_TOKEN)
+        comment = "Confidence {}, Category {}".format(confidence, category)
+        response = client.files_upload(
+            file=image,
+            initial_comment=comment,
+            channels='#cctv'
+        )
+        assert response['ok']
+        slack_file = response['file']
+        logging.info(slack_file)
 
 # SUB MQTT
 def on_connect(client, userdata, flags, rc):
