@@ -21,12 +21,9 @@ SLACK_TOKEN = os.environ.get('SLACK_TOKEN','')
 def post_to_slack(url, confidence, category):
     if confidence > 0.8:
         client = slack.WebClient(token=SLACK_TOKEN)
-        comment = "Confidence : {}, Category : {} /n {}".format(str(confidence*100), category, url)
-        response =  client.api_call(
-                    "chat.postMessage",
-                    channel="#cctv",
-                    text=comment
-                    )
+        comment = "Confidence : {}, Category : {} \n {}".format(str(confidence*100), category, url)
+        logging.debug(comment)
+        response = client.chat_postMessage(channel="#cctv", text=comment)
         logging.info(response)
 
 
@@ -49,7 +46,7 @@ def on_message(client, userdata, msg):
     post_to_slack(url, confidence, category)
 
 def main():
-    logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(message)s')
+    logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
     logging.info("STARTING MQTT Slackbot")
     client = paho.Client("mqtt-slackbot")
     client.on_connect = on_connect
