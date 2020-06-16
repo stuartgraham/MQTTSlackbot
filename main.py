@@ -7,9 +7,9 @@ import logging
 import slack
 
 # .ENV FILE FOR TESTING
-#if os.path.exists('.env'):
-#    from dotenv import load_dotenv
-#    load_dotenv()
+if os.path.exists('.env'):
+    from dotenv import load_dotenv
+    load_dotenv()
 
 # GLOBALS
 MQTT_BROKER = os.environ.get('MQTT_BROKER','')
@@ -23,7 +23,7 @@ def post_to_slack(url, confidence, category):
         client = slack.WebClient(token=SLACK_TOKEN)
         comment = "Confidence : {}, Category : {} \n {}".format(str(confidence*100), category, url)
         logging.debug(comment)
-        response = client.chat_postMessage(channel="#cctv", text=comment)
+        response = client.chat_postMessage(channel="#cctv", text=comment, unfurl_links=true)
         logging.info(response)
 
 
