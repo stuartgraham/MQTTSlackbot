@@ -23,7 +23,7 @@ def post_to_slack(url, confidence, category):
         client = slack.WebClient(token=SLACK_TOKEN)
         comment = "Confidence : {}, Category : {} \n {}".format(str(confidence*100), category, url)
         logging.debug(comment)
-        response = client.chat_postMessage(channel="#cctv", text=comment, unfurl_links=true)
+        response = client.chat_postMessage(channel="#cctv", text=comment, unfurl_links=True)
         logging.info(response)
 
 
