@@ -21,7 +21,7 @@ SLACK_TOKEN = os.environ.get('SLACK_TOKEN','')
 def post_to_slack(url, confidence, category):
     if confidence > 0.8:
         client = slack.WebClient(token=SLACK_TOKEN)
-        comment = "Confidence : {}, Category : {} \n {}".format(str(confidence*100), category, url)
+        comment = "Confidence : {}%, Category : {} \n {}".format(str(confidence*100), category.upper(), url)
         logging.debug(comment)
         response = client.chat_postMessage(channel="#cctv", text=comment, unfurl_links=True)
         logging.info(response)
