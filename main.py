@@ -5,11 +5,12 @@ import json
 import datetime
 import logging
 import slack
+import random
 
 # .ENV FILE FOR TESTING
-if os.path.exists('.env'):
-    from dotenv import load_dotenv
-    load_dotenv()
+# if os.path.exists('.env'):
+#     from dotenv import load_dotenv
+#     load_dotenv()
 
 # GLOBALS
 MQTT_BROKER = os.environ.get('MQTT_BROKER','')
@@ -21,15 +22,18 @@ SLACK_TOKEN = os.environ.get('SLACK_TOKEN','')
 def post_to_slack(url, confidence, category):
     if confidence > 0.8:
         client = slack.WebClient(token=SLACK_TOKEN)
-        comment = "Confidence : {}%, Category : {} \n {}".format(str(confidence*100), category.upper(), url)
+        url = fix_url_url(url)
+        comment = "Confidence : {}%, Category : {}".format(str(confidence*100), category)
+        post_message = build_message_block(url, comment)
         logging.debug(comment)
-        response = client.chat_postMessage(channel="#cctv", text=comment, unfurl_links=True)
+        response = client.chat_postMessage(channel="#cctv", blocks=post_message)
         logging.info(response)
 
 
 # SUB MQTT
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
+    logging.debug("Listening to  : {}".format(MQTT_SUB_TOPIC)) 
     client.subscribe(MQTT_SUB_TOPIC)
 
 def on_message(client, userdata, msg):
@@ -45,10 +49,36 @@ def on_message(client, userdata, msg):
     logging.debug("json_url : {}".format(str(url)))
     post_to_slack(url, confidence, category)
 
+
+def build_message_block(url, comment):
+    message = [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": comment
+                    }
+                    },
+                    {
+					"type": "image",
+					"title": {
+						"type": "plain_text",
+						"text": "CCTV Analysis"
+					},
+					"image_url": url,
+					"alt_text": "CCTV IMAGE"
+				}
+            ]
+    return message
+
+def fix_url_url(url):
+    url = url.replace('dl=0', 'raw=1')
+    return url
+
 def main():
     logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
     logging.info("STARTING MQTT Slackbot")
-    client = paho.Client("mqtt-slackbot")
+    client = paho.Client("mqtt-slack-bot-" + str(random.randint(100, 999)))
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
