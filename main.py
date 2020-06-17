@@ -20,7 +20,7 @@ SLACK_TOKEN = os.environ.get('SLACK_TOKEN','')
 
 
 def post_to_slack(url, confidence, category):
-    if confidence > 0.8:
+    if confidence > 0.9:
         client = slack.WebClient(token=SLACK_TOKEN)
         url = fix_url_url(url)
         comment = "Confidence : {}%, Category : {}".format(str(confidence*100), category)
